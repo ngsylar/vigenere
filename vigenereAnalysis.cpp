@@ -150,7 +150,8 @@ class Vigenere {
             }
             likelyCipherKey += (cipherText[i]-((cipherText[i]-mostLikelyCharacter)%26)-39)%26+65;
         }
-        std::cout << "Most likely key based on the english alphabet: " << likelyCipherKey << "\n";
+        if (cipherLanguage == 1) std::cout << "Most likely key based on the portuguese alphabet: " << likelyCipherKey << "\n";
+        else abcFreq = std::cout << "Most likely key based on the english alphabet: " << likelyCipherKey << "\n";
         std::cout << "Attempting to decrypt ciphertext with infered key:\n";
 
         i=0, j=0; char decipherChar;
@@ -255,7 +256,7 @@ int main (int argc, char *argv[]) {
                 productName.append(1,char(dtFileId+48));
                 break;
             case 53:
-                std::cout << "Choose a language for the cipher:\n0. EN-US\n1. PT-BR";
+                std::cout << "Choose a language for the cipher:\n\t0. EN-US\n\t1. PT-BR\n";
                 std::cin >> language;
                 if(language == 0)
                     std::cout << "Write the cipher text (EN-US): ";
@@ -272,7 +273,7 @@ int main (int argc, char *argv[]) {
                 productName.append(1,char(atFileId+48));
                 break;
             case 54:
-                std::cout << "Choose a language for the cipher:\n0. EN-US\n1. PT-BR";
+                std::cout << "Choose a language for the cipher:\n\t0. EN-US\n\t1. PT-BR\n";
                 std::cin >> language;
                 std::cout << "Enter file name: ";
                 std::cin >> fileName;
