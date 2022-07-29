@@ -70,7 +70,7 @@ class Vigenere {
     }
 
     // analiza uma mensagem cifrada
-    static std::string analyze (std::string cipherText, int keySize = 0) {
+    static std::string analyze (std::string cipherText, int cipherLanguage = 0) {
         std::string key, message;
 
         std::pair<std::string, int> trigrams[MAX_TRIGRAMS];
@@ -108,6 +108,11 @@ class Vigenere {
         float ingl[26] = { 8.167, 1.492, 2.782, 4.253, 12.702, 2.228, 2.015, 6.094, 6.966, 0.153, 0.772, 4.025, 2.406, 6.749, 7.507, 1.929, 0.095, 5.987, 6.327, 9.056, 2.758, 0.978, 2.360, 0.150, 1.974, 0.074 };
         float port[26] = {14.630, 1.040, 3.880, 4.990, 12.570, 1.020, 1.300, 1.280, 6.180, 0.400, 0.020, 2.780, 4.740, 5.050, 10.730, 2.520, 1.200, 6.530, 7.810, 4.340, 4.630, 1.670, 0.010, 0.210, 0.010, 0.470};
 
+        float *abcFreq;
+        if(cipherLanguage == 0) abcFreq = ingl;
+        else if (cipherLanguage == 1) abcFreq = port;
+        else abcFreq = ingl;
+
         std::string likelyCipherKey = "";
         for(i = 0; i<likelyKeySize; i++){
             float keyCharFrequencies[26] = {};
@@ -132,7 +137,7 @@ class Vigenere {
                 //calculate Chi distance to chosen language letter frequency histogram ((Xi - Yi)^2)/(Xi + Yi)
                 for(k = 0; k < 26; k++){
                     //dont have to check for division by zero since language frequency arrays dont have null elements
-                    tempChiDistance += (ingl[k] - freq[k])*(ingl[k] - freq[k])/(ingl[k] + freq[k]);
+                    tempChiDistance += (abcFreq[k] - freq[k])*(abcFreq[k] - freq[k])/(abcFreq[k] + freq[k]);
                 }
 
                 if(tempChiDistance < chiDistance){
@@ -154,8 +159,6 @@ class Vigenere {
             message.append(1, decipherChar); j++; i++;
         }
         return message;
-
-        //return likelyCipherKey;
     }
 };
 
@@ -189,7 +192,7 @@ bool fileWasNotRead (std::string fileName, std::string *text) {
 int main (int argc, char *argv[]) {
     std::string option, fileName, key, text, product, save, productName;
     bool isRunning = true;
-    int ctFileId=0, dtFileId=0, atFileId=0;
+    int ctFileId=0, dtFileId=0, atFileId=0, language;
 
     std::cout << "Vigenere Cipher" << std::endl;
     if (argc >= 3) {
@@ -201,13 +204,13 @@ int main (int argc, char *argv[]) {
         FileWithProduct.write(product.c_str(), product.size());
         FileWithProduct.close();
     } else while (isRunning) {
-        std::cout << "\n1. Encrypt a file\n2. Write a message and encrypt\n3. Decrypt a file\n4. Write a cipher text and decrypt\n5. Analyze a cipher text\n6. Quit\nChoose an option: ";
+        std::cout << "\n1. Encrypt a file\n2. Write a message and encrypt\n3. Decrypt a file\n4. Write a cipher text and decrypt\n5. Analyze a cipher text\n6. Analyze a ciphered file\n7. Quit\nChoose an option: ";
         std::cin >> option;
-        while ((option.size()!=1)||(option[0]<49)||(option[0]>54)) {
+        while ((option.size()!=1)||(option[0]<49)||(option[0]>55)) {
             std::cout << "Invalid option, choose again: ";
             std::cin >> option;
         }
-        if (option[0] == 54) {isRunning = false; break;}
+        if (option[0] == 55) {isRunning = false; break;}
         switch (int(option[0])) {
             case 49:
                 std::cout << "Provide a key for the cipher: ";
@@ -252,9 +255,33 @@ int main (int argc, char *argv[]) {
                 productName.append(1,char(dtFileId+48));
                 break;
             case 53:
-                std::cout << "Write the cipher text: ";
+                std::cout << "Choose a language for the cipher:\n0. EN-US\n1. PT-BR";
+                std::cin >> language;
+                if(language == 0)
+                    std::cout << "Write the cipher text (EN-US): ";
+                else if (language == 1)
+                    std::cout << "Write the cipher text (PT-BR): ";
+                else
+                    std::cout << "Unrecognized language, assuming EN-US.\n Write the cipher text (EN-US): ";
                 std::cin >> text;
-                product = Vigenere::analyze(text);
+
+                if (language == 1) product = Vigenere::analyze(text, 1);
+                else product = Vigenere::analyze(text);
+
+                productName = "AnalyzedText_";
+                productName.append(1,char(atFileId+48));
+                break;
+            case 54:
+                std::cout << "Choose a language for the cipher:\n0. EN-US\n1. PT-BR";
+                std::cin >> language;
+                std::cout << "Enter file name: ";
+                std::cin >> fileName;
+                if (fileWasNotRead(fileName, &text))
+                    std::cout << "Error: invalid file name." << std::endl;
+
+                if (language == 1) product = Vigenere::analyze(text, 1);
+                else product = Vigenere::analyze(text);
+
                 productName = "AnalyzedText_";
                 productName.append(1,char(atFileId+48));
                 break;
