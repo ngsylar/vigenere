@@ -59,7 +59,7 @@ class Vigenere {
 
 // extrai texto de um arquivo
 std::string extractFromFile (std::string fileName) {
-    std::fstream FileWithMessage(fileName);
+    std::ifstream FileWithMessage(fileName);
     std::string fileLine, text;
     if (FileWithMessage.is_open()) {
         while (getline(FileWithMessage, fileLine))
@@ -72,7 +72,7 @@ std::string extractFromFile (std::string fileName) {
 
 // le um arquivo
 bool fileWasNotRead (std::string fileName, std::string *text) {
-    std::fstream FileWithMessage(fileName);
+    std::ifstream FileWithMessage(fileName);
     std::string fileLine;
     if (FileWithMessage.is_open()) {
         while (getline(FileWithMessage, fileLine))
@@ -84,21 +84,13 @@ bool fileWasNotRead (std::string fileName, std::string *text) {
 }
 
 // ui
-int main (int argc, char *argv[]) {
+int main () {
+    std::ofstream FileWithProduct;
     std::string option, fileName, key, text, product, save, productName;
     bool isRunning = true;
-    int ctFileId=0, dtFileId=0;
 
     std::cout << "Vigenere Cipher" << std::endl;
-    if (argc >= 3) {
-        key = argv[1];
-        fileName = argv[2];
-        text = extractFromFile(fileName);
-        product = Vigenere::cipher(text, key);
-        std::ofstream FileWithProduct("VigenereCipherText.txt");
-        FileWithProduct.write(product.c_str(), product.size());
-        FileWithProduct.close();
-    } else while (isRunning) {
+    while (isRunning) {
         std::cout << "\n1. Encrypt a file\n2. Write a message and encrypt\n3. Decrypt a file\n4. Write a cipher text and decrypt\n5. Quit\nChoose an option: ";
         std::cin >> option;
         while ((option.size()!=1)||(option[0]<49)||(option[0]>53)) {
@@ -106,6 +98,7 @@ int main (int argc, char *argv[]) {
             std::cin >> option;
         }
         if (option[0] == 53) {isRunning = false; break;}
+
         std::cout << "Provide a key for the cipher: ";
         std::cin >> key;
         switch (int(option[0])) {
@@ -115,39 +108,36 @@ int main (int argc, char *argv[]) {
                 if (fileWasNotRead(fileName, &text))
                     std::cout << "Error: invalid file name." << std::endl;
                 product = Vigenere::cipher(text, key);
-                productName = "VigenereCipherText_";
-                productName.append(1,char(ctFileId+48));
                 break;
+
             case 50:
                 std::cout << "Write a message: ";
                 std::cin >> text;
                 product = Vigenere::cipher(text, key);
-                productName = "VigenereCipherText_";
-                productName.append(1,char(ctFileId+48));
                 break;
+
             case 51:
                 std::cout << "Enter file name: ";
                 std::cin >> fileName;
                 if (fileWasNotRead(fileName, &text))
                     std::cout << "Error: invalid file name." << std::endl;
                 product = Vigenere::decipher(text, key);
-                productName = "DecipheredText_";
-                productName.append(1,char(dtFileId+48));
                 break;
+
             case 52:
                 std::cout << "Write the cipher text: ";
                 std::cin >> text;
                 product = Vigenere::decipher(text, key);
-                productName = "DecipheredText_";
-                productName.append(1,char(dtFileId+48));
                 break;
             default: break;
         }
+        
         std::cout << std::endl << product << std::endl;
         std::cout << std::endl << "Do you want to save the obtained text in a new file (y/n)? ";
         std::cin >> save;
         if ((save.size()>0)&&((save[0]==89)||(save[0]==121))) {
-            std::ofstream FileWithProduct(productName+".txt");
+            std::cin >> productName;
+            FileWithProduct = std::ofstream(productName);
             FileWithProduct.write(product.c_str(), product.size());
             FileWithProduct.close();
         }

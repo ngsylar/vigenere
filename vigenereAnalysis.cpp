@@ -151,7 +151,7 @@ class Vigenere {
             likelyCipherKey += (cipherText[i]-((cipherText[i]-mostLikelyCharacter)%26)-39)%26+65;
         }
         if (cipherLanguage == 1) std::cout << "Most likely key based on the portuguese alphabet: " << likelyCipherKey << "\n";
-        else abcFreq = std::cout << "Most likely key based on the english alphabet: " << likelyCipherKey << "\n";
+        else std::cout << "Most likely key based on the english alphabet: " << likelyCipherKey << "\n";
         std::cout << "Attempting to decrypt ciphertext with infered key:\n";
 
         i=0, j=0; char decipherChar;
@@ -190,21 +190,14 @@ bool fileWasNotRead (std::string fileName, std::string *text) {
 }
 
 // ui
-int main (int argc, char *argv[]) {
+int main () {
+    std::ofstream FileWithProduct;
     std::string option, fileName, key, text, product, save, productName;
     bool isRunning = true;
-    int ctFileId=0, dtFileId=0, atFileId=0, language;
+    int language;
 
     std::cout << "Vigenere Cipher" << std::endl;
-    if (argc >= 3) {
-        key = argv[1];
-        fileName = argv[2];
-        text = extractFromFile(fileName);
-        product = Vigenere::cipher(text, key);
-        std::ofstream FileWithProduct("VigenereCipherText.txt");
-        FileWithProduct.write(product.c_str(), product.size());
-        FileWithProduct.close();
-    } else while (isRunning) {
+    while (isRunning) {
         std::cout << "\n1. Encrypt a file\n2. Write a message and encrypt\n3. Decrypt a file\n4. Write a cipher text and decrypt\n5. Analyze a cipher text\n6. Analyze a ciphered file\n7. Quit\nChoose an option: ";
         std::cin >> option;
         while ((option.size()!=1)||(option[0]<49)||(option[0]>55)) {
@@ -221,9 +214,8 @@ int main (int argc, char *argv[]) {
                 if (fileWasNotRead(fileName, &text))
                     std::cout << "Error: invalid file name." << std::endl;
                 product = Vigenere::cipher(text, key);
-                productName = "VigenereCipherText_";
-                productName.append(1,char(ctFileId+48));
                 break;
+
             case 50:
                 std::cout << "Provide a key for the cipher: ";
                 std::cin >> key;
@@ -232,9 +224,8 @@ int main (int argc, char *argv[]) {
                 getline(std::cin, text); // ignora \n
                 getline(std::cin, text); // pega a linha inteira
                 product = Vigenere::cipher(text, key);
-                productName = "VigenereCipherText_";
-                productName.append(1,char(ctFileId+48));
                 break;
+
             case 51:
                 std::cout << "Provide a key for the cipher: ";
                 std::cin >> key;
@@ -243,20 +234,18 @@ int main (int argc, char *argv[]) {
                 if (fileWasNotRead(fileName, &text))
                     std::cout << "Error: invalid file name." << std::endl;
                 product = Vigenere::decipher(text, key);
-                productName = "DecipheredText_";
-                productName.append(1,char(dtFileId+48));
                 break;
+
             case 52:
                 std::cout << "Provide a key for the cipher: ";
                 std::cin >> key;
                 std::cout << "Write the cipher text: ";
                 std::cin >> text;
                 product = Vigenere::decipher(text, key);
-                productName = "DecipheredText_";
-                productName.append(1,char(dtFileId+48));
                 break;
+
             case 53:
-                std::cout << "Choose a language for the cipher:\n\t0. EN-US\n\t1. PT-BR\n";
+                std::cout << "Choose a language for the cipher:\n0. EN-US\n1. PT-BR";
                 std::cin >> language;
                 if(language == 0)
                     std::cout << "Write the cipher text (EN-US): ";
@@ -268,12 +257,10 @@ int main (int argc, char *argv[]) {
 
                 if (language == 1) product = Vigenere::analyze(text, 1);
                 else product = Vigenere::analyze(text);
-
-                productName = "AnalyzedText_";
-                productName.append(1,char(atFileId+48));
                 break;
+
             case 54:
-                std::cout << "Choose a language for the cipher:\n\t0. EN-US\n\t1. PT-BR\n";
+                std::cout << "Choose a language for the cipher:\n0. EN-US\n1. PT-BR\n";
                 std::cin >> language;
                 std::cout << "Enter file name: ";
                 std::cin >> fileName;
@@ -282,17 +269,16 @@ int main (int argc, char *argv[]) {
 
                 if (language == 1) product = Vigenere::analyze(text, 1);
                 else product = Vigenere::analyze(text);
-
-                productName = "AnalyzedText_";
-                productName.append(1,char(atFileId+48));
                 break;
             default: break;
         }
+
         std::cout << std::endl << product << std::endl;
         std::cout << std::endl << "Do you want to save the obtained text in a new file (y/n)? ";
         std::cin >> save;
         if ((save.size()>0)&&((save[0]==89)||(save[0]==121))) {
-            std::ofstream FileWithProduct(productName+".txt");
+            std::cin >> productName;
+            FileWithProduct = std::ofstream(productName);
             FileWithProduct.write(product.c_str(), product.size());
             FileWithProduct.close();
         }
