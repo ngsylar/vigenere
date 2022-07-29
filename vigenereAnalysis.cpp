@@ -205,6 +205,7 @@ int main () {
             std::cin >> option;
         }
         if (option[0] == 55) {isRunning = false; break;}
+
         switch (int(option[0])) {
             case 49:
                 std::cout << "Provide a key for the cipher: ";
@@ -220,9 +221,7 @@ int main () {
                 std::cout << "Provide a key for the cipher: ";
                 std::cin >> key;
                 std::cout << "Write a message: ";
-                //std::cin >> text;
-                getline(std::cin, text); // ignora \n
-                getline(std::cin, text); // pega a linha inteira
+                getline(std::cin, text);
                 product = Vigenere::cipher(text, key);
                 break;
 
@@ -240,7 +239,7 @@ int main () {
                 std::cout << "Provide a key for the cipher: ";
                 std::cin >> key;
                 std::cout << "Write the cipher text: ";
-                std::cin >> text;
+                getline(std::cin, text);
                 product = Vigenere::decipher(text, key);
                 break;
 
