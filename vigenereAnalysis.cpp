@@ -72,11 +72,11 @@ class Vigenere {
     // analiza uma mensagem cifrada
     static std::string analyze (std::string cipherText, int cipherLanguage = 0) {
         std::string key, message;
-
         std::pair<std::string, int> trigrams[MAX_TRIGRAMS];
         int nTrigrams = 0;
         int i, j, k;
 
+        cipherText = stripAscii(cipherText);
 	    for(i = 0; i<cipherText.size()-3; i++){
 		    std::string tri = cipherText.substr(i,3);
 		    for(j = i+3; j<cipherText.size(); j++){
@@ -181,6 +181,7 @@ bool fileWasNotRead (std::string fileName, std::string *text) {
     std::fstream FileWithMessage(fileName);
     std::string fileLine;
     if (FileWithMessage.is_open()) {
+        text->clear();
         while (getline(FileWithMessage, fileLine))
             text->append(fileLine);
         FileWithMessage.close();
@@ -208,13 +209,13 @@ int main () {
 
         switch (int(option[0])) {
             case 49:
-                std::cout << "Provide a key for the cipher: ";
-                std::cin >> key;
                 std::cout << "Enter file name: ";
                 std::cin >> fileName;
+                std::cout << "Provide a key for the cipher: ";
+                std::cin >> key;
                 if (fileWasNotRead(fileName, &text))
                     std::cout << "Error: invalid file name." << std::endl;
-                product = Vigenere::cipher(text, key);
+                else product = Vigenere::cipher(text, key);
                 break;
 
             case 50:
@@ -226,13 +227,13 @@ int main () {
                 break;
 
             case 51:
-                std::cout << "Provide a key for the cipher: ";
-                std::cin >> key;
                 std::cout << "Enter file name: ";
                 std::cin >> fileName;
+                std::cout << "Provide a key for the cipher: ";
+                std::cin >> key;
                 if (fileWasNotRead(fileName, &text))
                     std::cout << "Error: invalid file name." << std::endl;
-                product = Vigenere::decipher(text, key);
+                else product = Vigenere::decipher(text, key);
                 break;
 
             case 52:
@@ -244,7 +245,7 @@ int main () {
                 break;
 
             case 53:
-                std::cout << "Choose a language for the cipher:\n0. EN-US\n1. PT-BR";
+                std::cout << "Choose a language for the cipher:\n0. EN-US\n1. PT-BR\nOption: ";
                 std::cin >> language;
                 if(language == 0)
                     std::cout << "Write the cipher text (EN-US): ";
@@ -259,15 +260,15 @@ int main () {
                 break;
 
             case 54:
-                std::cout << "Choose a language for the cipher:\n0. EN-US\n1. PT-BR\n";
+                std::cout << "Choose a language for the cipher:\n0. EN-US\n1. PT-BR\nOption: ";
                 std::cin >> language;
                 std::cout << "Enter file name: ";
                 std::cin >> fileName;
                 if (fileWasNotRead(fileName, &text))
                     std::cout << "Error: invalid file name." << std::endl;
-
-                if (language == 1) product = Vigenere::analyze(text, 1);
-                else product = Vigenere::analyze(text);
+                else
+                    if (language == 1) product = Vigenere::analyze(text, 1);
+                    else product = Vigenere::analyze(text);
                 break;
             default: break;
         }
@@ -276,6 +277,7 @@ int main () {
         std::cout << std::endl << "Do you want to save the obtained text in a new file (y/n)? ";
         std::cin >> save;
         if ((save.size()>0)&&((save[0]==89)||(save[0]==121))) {
+            std::cout << "Enter file name to save: ";
             std::cin >> productName;
             FileWithProduct = std::ofstream(productName);
             FileWithProduct.write(product.c_str(), product.size());
