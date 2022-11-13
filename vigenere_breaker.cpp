@@ -72,33 +72,39 @@ class VigenereBreaker {
                 cipherLetterFrequencies[i] *= 100.0f;
             }
             // calcula o caractere mais provavel para o digito k da chave
-            float minChiDistance = 999999.0f;
             int mostLikelyCharacter = -1;
-            for (int shift=0; shift < 26; shift++) {
-                float chiDistance = 0.0f;
-
-                // calcula distancia qui-quadrado do histograma de frequências
-                for (int i=0; i < 26; i++) {
-                    float chisub = englishLetterFrequencies[i] - cipherLetterFrequencies[i];
-                    float chisum = englishLetterFrequencies[i] + cipherLetterFrequencies[i];
-                    chiDistance += (chisub * chisub) / chisum;
-                }
-                // salva a menor distancia obtida para cada shift
-                chiDistance *= 0.5f;
-                if (chiDistance < minChiDistance) {
-                    minChiDistance = chiDistance;
-                    mostLikelyCharacter = shift;
-                }
-                // faz um shift a esquerda do histograma
-                cipherLetterFrequencies.push_back(cipherLetterFrequencies.front());
-                cipherLetterFrequencies.erase(cipherLetterFrequencies.begin());
-                std::cout << shift << "\t" << chiDistance << "\n"; // remover
-            }
-            mostLikelyCharacter += 65;
+            mostLikelyCharacter = chiSquareDistance(cipherLetterFrequencies, mostLikelyCharacter);
             mostLikelyKey += (char)mostLikelyCharacter;
             // for (int i=0; i<26; i++) std::cout << i << " " << ctLetterFrequencies[i] << "\n"; return; // remover
         }
         std::cout << mostLikelyKey; // remover
+    }
+
+    // calcula o caractere mais provavel para o digito k da chave
+    static int chiSquareDistance (std::vector<float>& cipherLetterFrequencies, int& mostLikelyCharacter) {
+        float minChiDistance = 999999.0f;
+        for (int shift=0; shift < 26; shift++) {
+            float chiDistance = 0.0f;
+
+            // calcula distancia qui-quadrado do histograma de frequências
+            for (int i=0; i < 26; i++) {
+                float chisub = englishLetterFrequencies[i] - cipherLetterFrequencies[i];
+                float chisum = englishLetterFrequencies[i] + cipherLetterFrequencies[i];
+                chiDistance += (chisub * chisub) / chisum;
+            }
+            // salva a menor distancia obtida para cada shift
+            chiDistance *= 0.5f;
+            if (chiDistance < minChiDistance) {
+                minChiDistance = chiDistance;
+                mostLikelyCharacter = shift;
+            }
+            // faz um shift a esquerda do histograma
+            cipherLetterFrequencies.push_back(cipherLetterFrequencies.front());
+            cipherLetterFrequencies.erase(cipherLetterFrequencies.begin());
+            // std::cout << shift << "\t" << chiDistance << "\n"; // remover
+        }
+
+        return mostLikelyCharacter+65;
     }
 
     public:

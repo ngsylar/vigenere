@@ -34,7 +34,7 @@ bool fileWasNotRead (std::string fileName, std::string *text) {
 int main () {
     std::string desafio = "";
 
-    VigenereBreaker::breakCipher(desafio, 3);
+    // VigenereBreaker::breakCipher(desafio, 3);
 
     return 0;
     
