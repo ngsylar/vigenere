@@ -57,8 +57,7 @@ class VigenereBreaker {
     }
 
     // calcula a frequencia das letras no texto cifrado
-    static void computeLetterFrequencies () {
-        int likelyKeySize = possibleKeySizes.front().first;
+    static void computeLetterFrequencies (int likelyKeySize) {
         for (int k=0; k < likelyKeySize; k++) {
             std::vector<float> cipherLetterFrequencies(26, 0.0f);
             int keyLetterGroupSize = 0;
@@ -110,7 +109,7 @@ class VigenereBreaker {
     }
 
     public:
-    static std::string breakCipher (std::string cipherText, int language, int keySizeMin=1, int keySizeMax=20) {
+    static void start (std::string cipherText, int language, int keySizeMin=1, int keySizeMax=20) {
         VigenereBreaker::cipherText = Vigenere::stripAscii(cipherText);
         VigenereBreaker::keySizeMin = keySizeMin;
         VigenereBreaker::keySizeMax = keySizeMax;
@@ -118,14 +117,18 @@ class VigenereBreaker {
 
         findTrigrams();
         computePossibleKeySizes();
-        computeLetterFrequencies();
 
         // std::cout << VigenereBreaker::cipherText << "\n";
         // for (std::vector<std::pair<int, int>>::iterator it=possibleKeySizes.begin(); it!=possibleKeySizes.end(); it++) std::cout << it->first << "\t" << it->second << "\n";
         // std::cout << mostLikelyKey << "\n";
         // std::cout << Vigenere::decipher(VigenereBreaker::cipherText, mostLikelyKey);
+    }
 
-        return Vigenere::decipher(VigenereBreaker::cipherText, mostLikelyKey);
+    static std::string findKey () {
+        mostLikelyKey = "";
+        computeLetterFrequencies(possibleKeySizes.front().first);
+        possibleKeySizes.erase(possibleKeySizes.begin());
+        return mostLikelyKey;
     }
 
     static void clearVariables () {

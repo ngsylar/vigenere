@@ -56,6 +56,7 @@ int main () {
                 if (fileWasNotRead(fileName, &text))
                     std::cout << "Error: invalid file name." << std::endl;
                 else product = Vigenere::cipher(text, key);
+                std::cout << std::endl << product << std::endl;
                 break;
 
             case 50:
@@ -66,6 +67,7 @@ int main () {
                 if (fileWasNotRead(fileName, &text))
                     std::cout << "Error: invalid file name." << std::endl;
                 else product = Vigenere::decipher(text, key);
+                std::cout << std::endl << product << std::endl;
                 break;
             
             case 51:
@@ -76,14 +78,23 @@ int main () {
                 else {
                     std::cout << "\n1. English\n2. Portuguese\nChoose a language: ";
                     std::cin >> language;
-                    product = VigenereBreaker::breakCipher(text, language-1, 5);
-                    VigenereBreaker::clearVariables();
+                    VigenereBreaker::start(text, language-1, 3);
+                    while (true) {
+                        key = VigenereBreaker::findKey();
+                        product = Vigenere::decipher(text, key);
+                        std::cout << std::endl << product << std::endl;
+                        std::cout << "\nKey found: " << key << "\nIs the message correct (y/n)? ";
+                        std::cin >> save;
+                        if ((save.size()==0)||((save[0]!=78)&&(save[0]!=110))) {
+                            VigenereBreaker::clearVariables();
+                            break;
+                        }
+                    }
                 } break;
 
             default: break;
         }
 
-        std::cout << std::endl << product << std::endl;
         std::cout << std::endl << "Do you want to save the obtained text in a new file (y/n)? ";
         std::cin >> save;
         if ((save.size()>0)&&((save[0]==89)||(save[0]==121))) {
