@@ -103,7 +103,7 @@ int main () {
             FileWithProduct = std::ofstream(productName);
             FileWithProduct.write(product.c_str(), product.size());
             FileWithProduct.close();
-            std::cout << "The file has been saved.";
+            std::cout << "The file has been saved.\n";
         }
     }
 }

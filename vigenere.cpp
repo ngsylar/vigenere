@@ -8,26 +8,30 @@ class Vigenere {
 
     public:
     static std::string stripAscii (std::string text) {
+        std::string nonAlphabeticText = "";
+        size_t found;
         
-        // retira espacos, pontuacao e quebra de linha
-        size_t found = text.find_first_not_of(alphabeticChars);
-        while (found != std::string::npos) {
-            text.erase(found,1);
-            found = text.find_first_not_of(alphabeticChars, found);
-        }
         // retira acentuacao
         for (int i=0; i<6; i++) {
-            size_t found = text.find_first_of(signedChars[i]);
+            found = text.find_first_of(signedChars[i]);
             while (found != std::string::npos) {
                 text[found] = notSignedChars[i];
                 found = text.find_first_of(signedChars[i], found+1);
             }
+        }
+        // retira caracteres nao alfabeticos
+        found = text.find_first_not_of(alphabeticChars);
+        while (found != std::string::npos) {
+            nonAlphabeticText += std::to_string(found) + text[found];
+            text.erase(found,1);
+            found = text.find_first_not_of(alphabeticChars, found);
         }
         // uppercase
         for (int i=0; i<text.size(); i++) {
             text[i] = toupper(text[i]);
         }
         return text;
+        return text+nonAlphabeticText;
     }
 
     // cifra uma mensagem com base em uma chave
@@ -60,5 +64,5 @@ class Vigenere {
 };
 
 const std::string Vigenere::alphabeticChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-const std::string Vigenere::signedChars[6] = {"ÀÁÂÃàáâã","Çç","ÉÊéê","Íí","ÓÔÕóôõ","Úú"};
+const std::string Vigenere::signedChars[6] = {std::string(1,-128)+std::string(1,-127)+std::string(1,-126)+std::string(1,-125)+std::string(1,-96)+std::string(1,-95)+std::string(1,-94)+std::string(1,-93), std::string(1,-121)+std::string(1,-89), std::string(1,-119)+std::string(1,-118)+std::string(1,-87)+std::string(1,-86), std::string(1,-115)+std::string(1,-83), std::string(1,-109)+std::string(1,-108)+std::string(1,-107)+std::string(1,-77)+std::string(1,-76)+std::string(1,-75), std::string(1,-102)+std::string(1,-70)};
 const std::string Vigenere::notSignedChars = "ACEIOU";
