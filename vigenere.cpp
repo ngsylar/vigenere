@@ -1,21 +1,23 @@
 #include <string>
 
 class Vigenere {
+    private:
+    static const std::string alphabeticChars;
+    static const std::string signedChars[6];
+    static const std::string notSignedChars;
+
     public:
     static std::string stripAscii (std::string text) {
-        std::string bannedChars = std::string(" \n,.:;!?()-\'\"").append(1,char(-61));
-        std::string signedChars[6] = {"ÀÁÂÃàáâã","Çç","ÉÊéê","Íí","ÓÔÕóôõ","Úú"};
-        std::string notSignedChars = "ACEIOU";
         
         // retira espacos, pontuacao e quebra de linha
-        size_t found = text.find_first_of(bannedChars);
+        size_t found = text.find_first_not_of(alphabeticChars);
         while (found != std::string::npos) {
             text.erase(found,1);
-            found = text.find_first_of(bannedChars, found);
+            found = text.find_first_not_of(alphabeticChars, found);
         }
         // retira acentuacao
         for (int i=0; i<6; i++) {
-            found = text.find_first_of(signedChars[i]);
+            size_t found = text.find_first_of(signedChars[i]);
             while (found != std::string::npos) {
                 text[found] = notSignedChars[i];
                 found = text.find_first_of(signedChars[i], found+1);
@@ -46,6 +48,7 @@ class Vigenere {
     static std::string decipher (std::string cipherText, std::string originalKey) {
         std::string key, message;
         key = stripAscii(originalKey);
+        cipherText = stripAscii(cipherText);
 
         int i=0, j=0; char decipherChar;
         while (i < cipherText.size()) {
@@ -55,3 +58,7 @@ class Vigenere {
         return message;
     }
 };
+
+const std::string Vigenere::alphabeticChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const std::string Vigenere::signedChars[6] = {"ÀÁÂÃàáâã","Çç","ÉÊéê","Íí","ÓÔÕóôõ","Úú"};
+const std::string Vigenere::notSignedChars = "ACEIOU";

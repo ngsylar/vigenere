@@ -1,20 +1,24 @@
+#include <iostream>
 #include <algorithm>
 #include <vector>
 #include <utility>
 #include <map>
 
-#include <iostream> // remover
-
 #include "vigenere.cpp"
+
+enum languageInt {ENGLISH, PORTUGUESE};
 
 class VigenereBreaker {
     private:
+    static languageInt textLanguage;
+    static const float* letterFrequencies[2];
     static const float englishLetterFrequencies[26];
     static const float portugueseLetterFrequencies[26];
 
     static std::string cipherText;
     static std::vector<std::pair<std::string, int>> trigrams;
     static std::vector<std::pair<int, int>> possibleKeySizes;
+    static std::string mostLikelyKey;
 
     static int keySizeMin, keySizeMax;
 
@@ -52,10 +56,9 @@ class VigenereBreaker {
         );
     }
 
-    // 
+    // calcula a frequencia das letras no texto cifrado
     static void computeLetterFrequencies () {
         int likelyKeySize = possibleKeySizes.front().first;
-        std::string mostLikelyKey = "";
         for (int k=0; k < likelyKeySize; k++) {
             std::vector<float> cipherLetterFrequencies(26, 0.0f);
             int keyLetterGroupSize = 0;
@@ -75,9 +78,8 @@ class VigenereBreaker {
             int mostLikelyCharacter = -1;
             mostLikelyCharacter = chiSquareDistance(cipherLetterFrequencies, mostLikelyCharacter);
             mostLikelyKey += (char)mostLikelyCharacter;
-            // for (int i=0; i<26; i++) std::cout << i << " " << ctLetterFrequencies[i] << "\n"; return; // remover
+            // for (int i=0; i<26; i++) std::cout << i << " " << ctLetterFrequencies[i] << "\n";
         }
-        std::cout << mostLikelyKey; // remover
     }
 
     // calcula o caractere mais provavel para o digito k da chave
@@ -88,8 +90,8 @@ class VigenereBreaker {
 
             // calcula distancia qui-quadrado do histograma de frequências
             for (int i=0; i < 26; i++) {
-                float chisub = englishLetterFrequencies[i] - cipherLetterFrequencies[i];
-                float chisum = englishLetterFrequencies[i] + cipherLetterFrequencies[i];
+                float chisub = letterFrequencies[textLanguage][i] - cipherLetterFrequencies[i];
+                float chisum = letterFrequencies[textLanguage][i] + cipherLetterFrequencies[i];
                 chiDistance += (chisub * chisub) / chisum;
             }
             // salva a menor distancia obtida para cada shift
@@ -101,39 +103,48 @@ class VigenereBreaker {
             // faz um shift a esquerda do histograma
             cipherLetterFrequencies.push_back(cipherLetterFrequencies.front());
             cipherLetterFrequencies.erase(cipherLetterFrequencies.begin());
-            // std::cout << shift << "\t" << chiDistance << "\n"; // remover
+            // std::cout << shift << "\t" << chiDistance << "\n";
         }
 
         return mostLikelyCharacter+65;
     }
 
     public:
-    static void breakCipher (std::string cipherText, int keySizeMin=1, int keySizeMax=20) {
+    static std::string breakCipher (std::string cipherText, int language, int keySizeMin=1, int keySizeMax=20) {
         VigenereBreaker::cipherText = Vigenere::stripAscii(cipherText);
         VigenereBreaker::keySizeMin = keySizeMin;
         VigenereBreaker::keySizeMax = keySizeMax;
+        textLanguage = (languageInt)language;
 
         findTrigrams();
         computePossibleKeySizes();
         computeLetterFrequencies();
-        // std::cout << VigenereBreaker::cipherText << "\n"; // remover
-        // for (std::vector<std::pair<int, int>>::iterator it=possibleKeySizes.begin(); it!=possibleKeySizes.end(); it++) std::cout << it->first << "\t" << it->second << "\n"; // remover
-        
-        // limpa todas as variaveis da classe
+
+        // std::cout << VigenereBreaker::cipherText << "\n";
+        // for (std::vector<std::pair<int, int>>::iterator it=possibleKeySizes.begin(); it!=possibleKeySizes.end(); it++) std::cout << it->first << "\t" << it->second << "\n";
+        // std::cout << mostLikelyKey << "\n";
+        // std::cout << Vigenere::decipher(VigenereBreaker::cipherText, mostLikelyKey);
+
+        return Vigenere::decipher(VigenereBreaker::cipherText, mostLikelyKey);
+    }
+
+    static void clearVariables () {
+        mostLikelyKey = "";
         possibleKeySizes.clear();
         trigrams.clear();
-        VigenereBreaker::keySizeMax = 0;
-        VigenereBreaker::keySizeMin = 0;
         VigenereBreaker::cipherText = "";
     }
 };
 
+const float* VigenereBreaker::letterFrequencies[2] = {VigenereBreaker::englishLetterFrequencies, VigenereBreaker::portugueseLetterFrequencies};
 const float VigenereBreaker::englishLetterFrequencies[26] = {8.167f, 1.492f, 2.782f, 4.253f, 12.702f, 2.228f, 2.015f, 6.094f, 6.966f, 0.153f, 0.772f, 4.025f, 2.406f, 6.749f, 7.507f, 1.929f, 0.095f, 5.987f, 6.327f, 9.056f, 2.758f, 0.978f, 2.360f, 0.150f, 1.974f, 0.074f};
 const float VigenereBreaker::portugueseLetterFrequencies[26] = {14.630f, 1.040f, 3.880f, 4.990f, 12.570f, 1.020f, 1.300f, 1.280f, 6.180f, 0.400f, 0.020f, 2.780f, 4.740f, 5.050f, 10.730f, 2.520f, 1.200f, 6.530f, 7.810f, 4.340f, 4.630f, 1.670f, 0.010f, 0.210f, 0.010f, 0.470f};
 
+languageInt VigenereBreaker::textLanguage = ENGLISH;
 std::string VigenereBreaker::cipherText = "";
 std::vector<std::pair<std::string, int>> VigenereBreaker::trigrams = {};
 std::vector<std::pair<int, int>> VigenereBreaker::possibleKeySizes = {};
+std::string VigenereBreaker::mostLikelyKey = "";
 
 int VigenereBreaker::keySizeMin = 0;
 int VigenereBreaker::keySizeMax = 0;
