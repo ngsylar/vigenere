@@ -1,4 +1,6 @@
 #include <string>
+#include <vector>
+#include <utility>
 
 class Vigenere {
     private:
@@ -6,10 +8,18 @@ class Vigenere {
     static const std::string signedChars[6];
     static const std::string notSignedChars;
 
+    static std::vector<std::pair<int, char>> nonAlphabeticText;
+
+    static std::string reverseStrip (std::string text) {
+        for (int i = nonAlphabeticText.size()-1; i>=0; i--)
+            text = text.substr(0, nonAlphabeticText[i].first) + std::string(1, nonAlphabeticText[i].second) + text.substr(nonAlphabeticText[i].first);
+        return text;
+    }
+
     public:
     static std::string stripAscii (std::string text) {
-        std::string nonAlphabeticText = "";
         size_t found;
+        nonAlphabeticText.clear();
         
         // retira acentuacao
         for (int i=0; i<6; i++) {
@@ -22,7 +32,8 @@ class Vigenere {
         // retira caracteres nao alfabeticos
         found = text.find_first_not_of(alphabeticChars);
         while (found != std::string::npos) {
-            nonAlphabeticText += std::to_string(found) + text[found];
+            if (text[found] != -61)
+                nonAlphabeticText.push_back(std::make_pair(found, text[found]));
             text.erase(found,1);
             found = text.find_first_not_of(alphabeticChars, found);
         }
@@ -30,8 +41,8 @@ class Vigenere {
         for (int i=0; i<text.size(); i++) {
             text[i] = toupper(text[i]);
         }
+        // for(int i=0;i<=nonAlphabeticText.size();i++) std::cout << nonAlphabeticText[i].first << "\t" << nonAlphabeticText[i].second;
         return text;
-        return text+nonAlphabeticText;
     }
 
     // cifra uma mensagem com base em uma chave
@@ -45,7 +56,7 @@ class Vigenere {
             cipherChar = ((message[i]+key[j%key.size()]-130)%26)+65;
             cipherText.append(1, cipherChar); j++; i++;
         }
-        return cipherText;
+        return reverseStrip(cipherText);
     }
 
     // decifra uma mensagem cifrada atraves de uma chave
@@ -59,10 +70,12 @@ class Vigenere {
             decipherChar = ((cipherText[i]-key[j%key.size()]+26)%26)+97;
             message.append(1, decipherChar); j++; i++;
         }
-        return message;
+        return reverseStrip(message);
     }
 };
 
 const std::string Vigenere::alphabeticChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const std::string Vigenere::signedChars[6] = {std::string(1,-128)+std::string(1,-127)+std::string(1,-126)+std::string(1,-125)+std::string(1,-96)+std::string(1,-95)+std::string(1,-94)+std::string(1,-93), std::string(1,-121)+std::string(1,-89), std::string(1,-119)+std::string(1,-118)+std::string(1,-87)+std::string(1,-86), std::string(1,-115)+std::string(1,-83), std::string(1,-109)+std::string(1,-108)+std::string(1,-107)+std::string(1,-77)+std::string(1,-76)+std::string(1,-75), std::string(1,-102)+std::string(1,-70)};
 const std::string Vigenere::notSignedChars = "ACEIOU";
+
+std::vector<std::pair<int, char>> Vigenere::nonAlphabeticText;
