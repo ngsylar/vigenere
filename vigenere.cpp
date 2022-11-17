@@ -2,6 +2,10 @@
 #include <vector>
 #include <utility>
 
+#define VSTRIP_DEFAULT          0b0000
+#define VSTRIP_SWAP_ACCENTED    0b0001
+#define VSTRIP_CONSIDER_ALL     0b0010  // editar: implementar essa tecnica - ignorar caracteres nao alfabeticos mas nao ignorar a classe da chave em que se encontram
+
 class Vigenere {
     private:
     static const std::string alphabeticChars;
@@ -16,12 +20,18 @@ class Vigenere {
         return text;
     }
 
-    public:
-    static std::string stripAscii (std::string text) {
-        size_t found;
-        nonAlphabeticText.clear();
-        
-        // retira acentuacao
+    static void stripDefault (std::string& text, size_t& found) {
+        // salva caracteres nao alfabeticos e letras acentuadas
+        found = text.find_first_not_of(alphabeticChars);
+        while (found != std::string::npos) {
+            nonAlphabeticText.push_back(std::make_pair(found, text[found]));
+            text.erase(found,1);
+            found = text.find_first_not_of(alphabeticChars, found);
+        }
+    }
+
+    static void stripSwapAccented (std::string& text, size_t& found) {
+        // troca letras acentuadas por nao acentuadas
         for (int i=0; i<6; i++) {
             found = text.find_first_of(signedChars[i]);
             while (found != std::string::npos) {
@@ -29,7 +39,7 @@ class Vigenere {
                 found = text.find_first_of(signedChars[i], found+1);
             }
         }
-        // retira caracteres nao alfabeticos
+        // salva caracteres nao alfabeticos
         found = text.find_first_not_of(alphabeticChars);
         while (found != std::string::npos) {
             if (text[found] != -61)
@@ -37,19 +47,29 @@ class Vigenere {
             text.erase(found,1);
             found = text.find_first_not_of(alphabeticChars, found);
         }
-        // uppercase
-        for (int i=0; i<text.size(); i++) {
+    }
+
+    public:
+    static std::string stripAscii (std::string text, int flags=VSTRIP_DEFAULT) {
+        size_t found;
+        nonAlphabeticText.clear();
+        
+        if (flags == 0) stripDefault(text, found);
+        else if (flags & 1) stripSwapAccented(text, found);
+
+        // transforma letras em maiusculas
+        for (int i=0; i<text.size(); i++)
             text[i] = toupper(text[i]);
-        }
+            
         // for(int i=0;i<=nonAlphabeticText.size();i++) std::cout << nonAlphabeticText[i].first << "\t" << nonAlphabeticText[i].second;
         return text;
     }
 
     // cifra uma mensagem com base em uma chave
-    static std::string cipher (std::string originalMessage, std::string originalKey) {
+    static std::string cipher (std::string originalMessage, std::string originalKey, int flags=VSTRIP_DEFAULT) {
         std::string message, key, cipherText;
         key = stripAscii(originalKey);
-        message = stripAscii(originalMessage);
+        message = stripAscii(originalMessage, flags);
 
         int i=0, j=0; char cipherChar;
         while (i < message.size()) {
@@ -60,10 +80,10 @@ class Vigenere {
     }
 
     // decifra uma mensagem cifrada atraves de uma chave
-    static std::string decipher (std::string cipherText, std::string originalKey) {
+    static std::string decipher (std::string cipherText, std::string originalKey, int flags=VSTRIP_DEFAULT) {
         std::string key, message;
         key = stripAscii(originalKey);
-        cipherText = stripAscii(cipherText);
+        cipherText = stripAscii(cipherText, flags);
 
         int i=0, j=0; char decipherChar;
         while (i < cipherText.size()) {

@@ -2,27 +2,16 @@
 
 #include "vigenere_breaker.cpp"
 
-// extrai texto de um arquivo
-std::string extractFromFile (std::string fileName) {
-    std::ifstream FileWithMessage(fileName);
-    std::string fileLine, text;
-    if (FileWithMessage.is_open()) {
-        while (getline(FileWithMessage, fileLine))
-            text.append(fileLine);
-        FileWithMessage.close();
-    }
-    else text = fileName;
-    return text;
-}
-
 // le um arquivo
 bool fileWasNotRead (std::string fileName, std::string *text) {
     std::ifstream FileWithMessage(fileName);
     std::string fileLine;
     if (FileWithMessage.is_open()) {
         text->clear();
-        while (getline(FileWithMessage, fileLine))
+        while (getline(FileWithMessage, fileLine)) {
             text->append(fileLine);
+            text->append("\n");
+        } text->pop_back();
         FileWithMessage.close();
         return false;
     }
@@ -36,6 +25,7 @@ int main () {
     int language;
     bool isRunning = true;
 
+    // editar: flags nao estao disponiveis como opcoes
     std::cout << "Vigenere Cipher" << std::endl;
     while (isRunning) {
         std::cout << "\n1. Encrypt a file\n2. Decrypt a file\n3. Break a file\'s encryption\n4. Quit\nChoose an option: ";
@@ -53,9 +43,11 @@ int main () {
                 std::cin >> key;
                 std::cout << "Enter file name: ";
                 std::cin >> fileName;
-                if (fileWasNotRead(fileName, &text))
+                while (fileWasNotRead(fileName, &text)) {
                     std::cout << "Error: invalid file name." << std::endl;
-                else product = Vigenere::cipher(text, key);
+                    std::cout << "Enter file name: ";
+                    std::cin >> fileName;
+                } product = Vigenere::cipher(text, key);
                 std::cout << std::endl << product << std::endl;
                 break;
 
@@ -64,31 +56,33 @@ int main () {
                 std::cin >> key;
                 std::cout << "Enter file name: ";
                 std::cin >> fileName;
-                if (fileWasNotRead(fileName, &text))
+                while (fileWasNotRead(fileName, &text)) {
                     std::cout << "Error: invalid file name." << std::endl;
-                else product = Vigenere::decipher(text, key);
+                    std::cout << "Enter file name: ";
+                    std::cin >> fileName;
+                } product = Vigenere::decipher(text, key);
                 std::cout << std::endl << product << std::endl;
                 break;
             
             case 51:
                 std::cout << "Enter file name: ";
                 std::cin >> fileName;
-                if (fileWasNotRead(fileName, &text))
+                while (fileWasNotRead(fileName, &text)) {
                     std::cout << "Error: invalid file name." << std::endl;
-                else {
-                    std::cout << "\n1. English\n2. Portuguese\nChoose a language: ";
-                    std::cin >> language;
-                    VigenereBreaker::start(text, language-1, 3);
-                    while (true) {
-                        key = VigenereBreaker::findKey();
-                        product = Vigenere::decipher(text, key);
-                        std::cout << std::endl << product << std::endl;
-                        std::cout << "\nKey found: " << key << "\nIs the message correct (y/n)? ";
-                        std::cin >> save;
-                        if ((save.size()==0)||((save[0]!=78)&&(save[0]!=110))) {
-                            VigenereBreaker::clearVariables();
-                            break;
-                        }
+                    std::cout << "Enter file name: ";
+                    std::cin >> fileName;
+                } std::cout << "\n1. English\n2. Portuguese\nChoose a language: ";
+                std::cin >> language;
+                VigenereBreaker::start(text, language-1, 3);
+                while (true) {
+                    key = VigenereBreaker::findKey();
+                    product = Vigenere::decipher(text, key);
+                    std::cout << std::endl << product << std::endl;
+                    std::cout << "\nKey found: " << key << "\nIs the message correct (y/n)? ";
+                    std::cin >> save;
+                    if ((save.size()==0)||((save[0]!=78)&&(save[0]!=110))) {
+                        VigenereBreaker::clearVariables();
+                        break;
                     }
                 } break;
 

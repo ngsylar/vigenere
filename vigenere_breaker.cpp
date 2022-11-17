@@ -6,6 +6,7 @@
 
 enum languageInt {ENGLISH, PORTUGUESE};
 
+// editar: nao esta desconsiderando trigramas separados por palavras distintas
 class VigenereBreaker {
     private:
     static languageInt textLanguage;
