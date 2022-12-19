@@ -4,7 +4,7 @@
 
 #define VSTRIP_DEFAULT          0b0000
 #define VSTRIP_SWAP_ACCENTED    0b0001
-#define VSTRIP_CONSIDER_ALL     0b0010  // editar: implementar essa tecnica - ignorar caracteres nao alfabeticos mas nao ignorar a classe da chave em que se encontram
+#define VSTRIP_CONSIDER_ALL     0b0010  // editar: implementar essa tecnica - ignorar caracteres nao alfabeticos mas nao ignorar a classe da chave em que se encontram, ou seja, nao pular posicoes do texto cifrado
 
 class Vigenere {
     private:
