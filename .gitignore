@@ -1,7 +1,5 @@
-*.txt
+/spike
 *.exe
-*.pdf
 *.zip
 *.rar
 .vscode
-spike.cpp

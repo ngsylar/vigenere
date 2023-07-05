@@ -29,6 +29,8 @@ class VigenereBreaker {
             for (int j=i+3; j < cipherText.size(); j++)
                 if (cipherText.substr(j,3) == trigram)
                     trigrams.push_back(std::make_pair(trigram, j-i));
+                    /* nota: os trigramas sao salvos baseando-se na distancia
+                    de cada ocorrencia entre dois trigramas iguais */
         }
     }
 
@@ -43,6 +45,11 @@ class VigenereBreaker {
             for (int i=keySizeMin; i<=keySizeMax; i++)
                 if (trigrams[trigramId].second%i == 0)
                     keySizesWeights[i]++;
+                    /* nota: para cada trigama salvo, testa se cada possivel tamanho
+                    de chave, no intervalo entre os tamanhos min e max definidos para
+                    a chave, divide a distancia do trigrama; se sim, aumenta o peso
+                    do tamanho de chave analisado, a probabilidade de que a chave da
+                    cifra tenha este tamanho se torna maior */
         
         for ( // it->first é um possível tamanho de chave e it->second seu peso
             std::map<int, int>::iterator it=keySizesWeights.begin();

@@ -73,7 +73,7 @@ int main () {
                     std::cin >> fileName;
                 } std::cout << "\n1. English\n2. Portuguese\nChoose a language: ";
                 std::cin >> language;
-                VigenereBreaker::start(text, language-1, 3);
+                VigenereBreaker::start(text, language-1, 4);
                 while (true) {
                     key = VigenereBreaker::findKey();
                     product = Vigenere::decipher(text, key);
